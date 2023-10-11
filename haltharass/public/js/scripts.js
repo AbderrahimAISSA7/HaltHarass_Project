@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const conversationDiv = document.getElementById('conversation');
     const messageInput = document.getElementById('messageInput');
     const sendButton = document.getElementById('sendButton');
+    
 
     sendButton.addEventListener('click', async function () {
         const message = messageInput.value;
@@ -39,21 +40,59 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function sendMessageToAPI(message) {
+        const OPENAI_API_KEY = 'Bearer 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';
+        
         // Utilisez la fonction fetch pour envoyer le message à l'API et obtenir la réponse
-        const apiUrl = 'URL_DE_VOTRE_API'; // Remplacez par l'URL réelle de votre API
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            body: JSON.stringify({ message }),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        const apiUrl = 'https://api.openai.com/v1/chat/completions';
+        
+        const requestData = [
+            model =>'gpt-4.0-turbo', // Utilisez le modèle approprié (gpt-4.0-turbo est un exemple)
+            messages => [
+                [
+                    role =>'system',
+                    content => 'You are a helpful assistant.' // Ajoutez un message système pour initialiser le modèle
+                ],
+                [
+                    role => 'user',
+                    content => message
+                ]
+            ]
+        ];
+        
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                  'Authorization': OPENAI_API_KEY,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  model: 'gpt-4',
+                  messages: [
+                    {
+                      role: 'user',
+                      content: 'tes un humain et ton '
+                    }
+                  ]
+                })
+              })
+              .then(response => {
+                // Handle the response here
 
-        if (response.ok) {
-            const responseData = await response.json();
-            return responseData.response;
-        } else {
-            return 'Erreur lors de la communication avec l\'API.';
+              })
+              .catch(error => {
+                // Handle errors here
+              });
+        
+            if (response.ok) {
+                const responseData = await response.json();
+                return responseData.choices[0].message.content;
+            } else {
+                return 'Erreur lors de la communication avec l\'API.';
+            }
+        } catch (error) {
+            console.error('Erreur inattendue :', error);
+            return 'Une erreur s\'est produite : ' + error;
         }
     }
 });
